@@ -1292,6 +1292,74 @@
 			]
 		},
 		{
+			"name": "tvos-parent",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/tvos",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "tvOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "13.0",
+				"CMAKE_OSX_ARCHITECTURES": "arm64"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"hidden": true,
+			"inherits": "base-user"
+		},
+		{
+			"name": "tvos-debug",
+			"displayName": "tvOS (Debug)",
+			"inherits": [
+				"tvos-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "tvos-relwithdebinfo",
+			"displayName": "tvOS (RelWithDebInfo)",
+			"inherits": [
+				"tvos-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "tvos-release",
+			"displayName": "tvOS (Release)",
+			"inherits": [
+				"tvos-parent",
+				"type-release"
+			]
+		},
+		{
+			"name": "tvos-libretro-debug",
+			"displayName": "tvOS (libretro core, Debug)",
+			"inherits": [
+				"build-libretro",
+				"tvos-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "tvos-libretro-relwithdebinfo",
+			"displayName": "tvOS (libretro core, RelWithDebInfo)",
+			"inherits": [
+				"build-libretro",
+				"tvos-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "tvos-libretro-release",
+			"displayName": "tvOS (libretro core, Release)",
+			"inherits": [
+				"build-libretro",
+				"tvos-parent",
+				"type-release"
+			]
+		},
+		{
 			"name": "3ds-parent",
 			"toolchainFile": "$env{DEVKITPRO}/cmake/3DS.cmake",
 			"cacheVariables": {
@@ -2135,6 +2203,30 @@
 		{
 			"name": "ios-arm64-libretro-release",
 			"configurePreset": "ios-arm64-libretro-release"
+		},
+		{
+			"name": "tvos-debug",
+			"configurePreset": "tvos-debug"
+		},
+		{
+			"name": "tvos-relwithdebinfo",
+			"configurePreset": "tvos-relwithdebinfo"
+		},
+		{
+			"name": "tvos-release",
+			"configurePreset": "tvos-release"
+		},
+		{
+			"name": "tvos-libretro-debug",
+			"configurePreset": "tvos-libretro-debug"
+		},
+		{
+			"name": "tvos-libretro-relwithdebinfo",
+			"configurePreset": "tvos-libretro-relwithdebinfo"
+		},
+		{
+			"name": "tvos-libretro-release",
+			"configurePreset": "tvos-libretro-release"
 		},
 		{
 			"name": "3ds-debug",
