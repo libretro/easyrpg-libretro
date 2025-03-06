@@ -138,6 +138,41 @@
 			"easyrpg_platforms": ["libretro"]
 		},
 		{
+			"name": "ios-armv7",
+			"displayName": "iOS",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/ios/armv7",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "iOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "9.0",
+				"CMAKE_OSX_ARCHITECTURES": "armv7",
+				"CMAKE_CXX_FLAGS": "-fno-aligned-allocation"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"easyrpg_platforms": ["libretro"]
+		},
+		{
+			"name": "ios-arm64",
+			"displayName": "iOS",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/ios/arm64",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "iOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "9.0",
+				"CMAKE_OSX_ARCHITECTURES": "arm64"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"easyrpg_platforms": ["libretro"]
+		},
+		{
 			"name": "3ds",
 			"displayName": "Nintendo 3DS",
 			"toolchainFile": "$env{DEVKITPRO}/cmake/3DS.cmake",
