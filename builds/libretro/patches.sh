@@ -38,3 +38,6 @@ else
 	# Add tvOS scripts
 	cp -r $SCRIPT_DIR/tvos $BUILDSCRIPTS
 fi
+
+## Harfbuzz: Disable ICU
+perl -pi -e 's/freetype=enabled/freetype=enabled -Dicu=disabled/' $BUILDSCRIPTS/shared/packages.sh
