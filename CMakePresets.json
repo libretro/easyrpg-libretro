@@ -1155,6 +1155,143 @@
 			]
 		},
 		{
+			"name": "ios-armv7-parent",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/ios/armv7",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "iOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "9.0",
+				"CMAKE_OSX_ARCHITECTURES": "armv7",
+				"CMAKE_CXX_FLAGS": "-fno-aligned-allocation"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"hidden": true,
+			"inherits": "base-user"
+		},
+		{
+			"name": "ios-armv7-debug",
+			"displayName": "iOS (Debug)",
+			"inherits": [
+				"ios-armv7-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-armv7-relwithdebinfo",
+			"displayName": "iOS (RelWithDebInfo)",
+			"inherits": [
+				"ios-armv7-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-armv7-release",
+			"displayName": "iOS (Release)",
+			"inherits": [
+				"ios-armv7-parent",
+				"type-release"
+			]
+		},
+		{
+			"name": "ios-armv7-libretro-debug",
+			"displayName": "iOS (libretro core, Debug)",
+			"inherits": [
+				"build-libretro",
+				"ios-armv7-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-armv7-libretro-relwithdebinfo",
+			"displayName": "iOS (libretro core, RelWithDebInfo)",
+			"inherits": [
+				"build-libretro",
+				"ios-armv7-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-armv7-libretro-release",
+			"displayName": "iOS (libretro core, Release)",
+			"inherits": [
+				"build-libretro",
+				"ios-armv7-parent",
+				"type-release"
+			]
+		},
+		{
+			"name": "ios-arm64-parent",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/ios/arm64",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "iOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "9.0",
+				"CMAKE_OSX_ARCHITECTURES": "arm64"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"hidden": true,
+			"inherits": "base-user"
+		},
+		{
+			"name": "ios-arm64-debug",
+			"displayName": "iOS (Debug)",
+			"inherits": [
+				"ios-arm64-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-arm64-relwithdebinfo",
+			"displayName": "iOS (RelWithDebInfo)",
+			"inherits": [
+				"ios-arm64-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-arm64-release",
+			"displayName": "iOS (Release)",
+			"inherits": [
+				"ios-arm64-parent",
+				"type-release"
+			]
+		},
+		{
+			"name": "ios-arm64-libretro-debug",
+			"displayName": "iOS (libretro core, Debug)",
+			"inherits": [
+				"build-libretro",
+				"ios-arm64-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-arm64-libretro-relwithdebinfo",
+			"displayName": "iOS (libretro core, RelWithDebInfo)",
+			"inherits": [
+				"build-libretro",
+				"ios-arm64-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-arm64-libretro-release",
+			"displayName": "iOS (libretro core, Release)",
+			"inherits": [
+				"build-libretro",
+				"ios-arm64-parent",
+				"type-release"
+			]
+		},
+		{
 			"name": "3ds-parent",
 			"toolchainFile": "$env{DEVKITPRO}/cmake/3DS.cmake",
 			"cacheVariables": {
@@ -1950,6 +2087,54 @@
 		{
 			"name": "ios-libretro-release",
 			"configurePreset": "ios-libretro-release"
+		},
+		{
+			"name": "ios-armv7-debug",
+			"configurePreset": "ios-armv7-debug"
+		},
+		{
+			"name": "ios-armv7-relwithdebinfo",
+			"configurePreset": "ios-armv7-relwithdebinfo"
+		},
+		{
+			"name": "ios-armv7-release",
+			"configurePreset": "ios-armv7-release"
+		},
+		{
+			"name": "ios-armv7-libretro-debug",
+			"configurePreset": "ios-armv7-libretro-debug"
+		},
+		{
+			"name": "ios-armv7-libretro-relwithdebinfo",
+			"configurePreset": "ios-armv7-libretro-relwithdebinfo"
+		},
+		{
+			"name": "ios-armv7-libretro-release",
+			"configurePreset": "ios-armv7-libretro-release"
+		},
+		{
+			"name": "ios-arm64-debug",
+			"configurePreset": "ios-arm64-debug"
+		},
+		{
+			"name": "ios-arm64-relwithdebinfo",
+			"configurePreset": "ios-arm64-relwithdebinfo"
+		},
+		{
+			"name": "ios-arm64-release",
+			"configurePreset": "ios-arm64-release"
+		},
+		{
+			"name": "ios-arm64-libretro-debug",
+			"configurePreset": "ios-arm64-libretro-debug"
+		},
+		{
+			"name": "ios-arm64-libretro-relwithdebinfo",
+			"configurePreset": "ios-arm64-libretro-relwithdebinfo"
+		},
+		{
+			"name": "ios-arm64-libretro-release",
+			"configurePreset": "ios-arm64-libretro-release"
 		},
 		{
 			"name": "3ds-debug",
