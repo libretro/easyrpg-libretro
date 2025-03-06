@@ -1087,6 +1087,74 @@
 			]
 		},
 		{
+			"name": "ios-parent",
+			"cacheVariables": {
+				"PLAYER_PREFIX_PATH_APPEND": "$env{EASYRPG_BUILDSCRIPTS}/ios/universal",
+				"PLAYER_FIND_ROOT_PATH_APPEND": "ON",
+				"CMAKE_SYSTEM_NAME": "iOS",
+				"CMAKE_OSX_DEPLOYMENT_TARGET": "8.0",
+				"CMAKE_OSX_ARCHITECTURES": "armv7;arm64"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Darwin"
+			},
+			"hidden": true,
+			"inherits": "base-user"
+		},
+		{
+			"name": "ios-debug",
+			"displayName": "iOS (Debug)",
+			"inherits": [
+				"ios-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-relwithdebinfo",
+			"displayName": "iOS (RelWithDebInfo)",
+			"inherits": [
+				"ios-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-release",
+			"displayName": "iOS (Release)",
+			"inherits": [
+				"ios-parent",
+				"type-release"
+			]
+		},
+		{
+			"name": "ios-libretro-debug",
+			"displayName": "iOS (libretro core, Debug)",
+			"inherits": [
+				"build-libretro",
+				"ios-parent",
+				"type-debug"
+			]
+		},
+		{
+			"name": "ios-libretro-relwithdebinfo",
+			"displayName": "iOS (libretro core, RelWithDebInfo)",
+			"inherits": [
+				"build-libretro",
+				"ios-parent",
+				"type-relwithdebinfo"
+			]
+		},
+		{
+			"name": "ios-libretro-release",
+			"displayName": "iOS (libretro core, Release)",
+			"inherits": [
+				"build-libretro",
+				"ios-parent",
+				"type-release"
+			]
+		},
+		{
 			"name": "3ds-parent",
 			"toolchainFile": "$env{DEVKITPRO}/cmake/3DS.cmake",
 			"cacheVariables": {
@@ -1858,6 +1926,30 @@
 		{
 			"name": "android-x86_64-libretro-release",
 			"configurePreset": "android-x86_64-libretro-release"
+		},
+		{
+			"name": "ios-debug",
+			"configurePreset": "ios-debug"
+		},
+		{
+			"name": "ios-relwithdebinfo",
+			"configurePreset": "ios-relwithdebinfo"
+		},
+		{
+			"name": "ios-release",
+			"configurePreset": "ios-release"
+		},
+		{
+			"name": "ios-libretro-debug",
+			"configurePreset": "ios-libretro-debug"
+		},
+		{
+			"name": "ios-libretro-relwithdebinfo",
+			"configurePreset": "ios-libretro-relwithdebinfo"
+		},
+		{
+			"name": "ios-libretro-release",
+			"configurePreset": "ios-libretro-release"
 		},
 		{
 			"name": "3ds-debug",
