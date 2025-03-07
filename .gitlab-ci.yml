@@ -9,9 +9,8 @@
 .core-defs:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
-    JNI_PATH: libretro
+    GIT_CLEAN_FLAGS: none
     CORENAME: easyrpg
-    TARGETNAME: easyrpg
     DEPS_VERSION: 2
     CMAKE_COMMON: "
       -DPLAYER_BUILD_LIBLCF=ON
@@ -140,6 +139,7 @@ libretro-build-windows-x64:
     - .core-defs
     - .libretro-windows-x64-mingw-make-default
   script:
+    - rm -rf *.zip *.dll
     - wget https://easyrpg.org/downloads/player/latest/easyrpg-player-latest-windows-libretro-x64.zip
     - unzip easyrpg-player-latest-windows-libretro-x64.zip
 
@@ -150,6 +150,7 @@ libretro-build-windows-i686:
     - .core-defs
     - .libretro-windows-i686-mingw-make-default
   script:
+    - rm -rf *.zip *.dll
     - wget https://easyrpg.org/downloads/player/latest/easyrpg-player-latest-windows-libretro.zip
     - unzip easyrpg-player-latest-windows-libretro.zip
 
@@ -215,15 +216,10 @@ libretro-build-osx-x64:
     - deps:osx
   needs:
     - deps:osx
-  cache:
-    key: "$CI_COMMIT_REF_SLUG-osx-x86_64"
-    paths:
-      - build/
   variables:
     CMAKE_PRESET: macos-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=x86_64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=x86_64"
     CORESUFFIX: .dylib
   script:
     - !reference [.common, build]
@@ -238,15 +234,10 @@ libretro-build-osx-arm64:
     - deps:osx
   needs:
     - deps:osx
-  cache:
-    key: "$CI_COMMIT_REF_SLUG-osx-arm64"
-    paths:
-      - build/
   variables:
     CMAKE_PRESET: macos-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=arm64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=arm64"
     CORESUFFIX: .dylib
   script:
     - !reference [.common, build]
@@ -266,8 +257,7 @@ test:osx-x64:
   variables:
     CMAKE_PRESET: macos-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=x86_64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=x86_64"
   script:
     - !reference [.common, check]
 
@@ -286,8 +276,7 @@ test:osx-arm64:
   variables:
     CMAKE_PRESET: macos-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=arm64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=arm64"
   script:
     - !reference [.common, check]
 
@@ -360,15 +349,10 @@ libretro-build-ios9:
     - deps:ios
   needs:
     - deps:ios
-  cache:
-    key: "$CI_COMMIT_REF_SLUG-ios9"
-    paths:
-      - build/
   variables:
     CMAKE_PRESET: ios-armv7-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=armv7
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=armv7"
     CORESUFFIX: .dylib
   script:
     - !reference [.common, build]
@@ -381,15 +365,10 @@ libretro-build-ios-arm64:
     - deps:ios
   needs:
     - deps:ios
-  cache:
-    key: "$CI_COMMIT_REF_SLUG-ios-arm64"
-    paths:
-      - build/
   variables:
     CMAKE_PRESET: ios-arm64-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=arm64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=arm64"
     CORESUFFIX: .dylib
   script:
     - !reference [.common, build]
@@ -410,15 +389,10 @@ libretro-build-tvos-arm64:
     - deps:tvos
   needs:
     - deps:tvos
-  cache:
-    key: "$CI_COMMIT_REF_SLUG-tvos"
-    paths:
-      - build/
   variables:
     CMAKE_PRESET: tvos-libretro-release
     CMAKE_ARGS: "
-        -DCMAKE_OSX_ARCHITECTURES=arm64
-        --fresh"
+        -DCMAKE_OSX_ARCHITECTURES=arm64"
     CORESUFFIX: .dylib
   script:
     - !reference [.common, build]
