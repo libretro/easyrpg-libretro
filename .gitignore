@@ -110,7 +110,6 @@ __MACOSX
 /*.build/
 
 # legacy
-/lib/liblcf/
 .buildconfig
 
 # Android
