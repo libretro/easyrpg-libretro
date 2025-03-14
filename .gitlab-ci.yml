@@ -1,0 +1,424 @@
+
+# DESCRIPTION: GitLab CI/CD for libRetro (NOT FOR GitLab-proper)
+
+##############################################################################
+################################# BOILERPLATE ################################
+##############################################################################
+
+# Core definitions
+.core-defs:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    JNI_PATH: libretro
+    CORENAME: easyrpg
+    TARGETNAME: easyrpg
+    DEPS_VERSION: 250407
+    CMAKE_COMMON: "
+      -DPLAYER_BUILD_LIBLCF=ON
+      -DCMAKE_INSTALL_PREFIX=.
+      -DCMAKE_IGNORE_PATH=/usr/include
+      -DPLAYER_VERSION_APPEND=libretro"
+    CORESUFFIX: ".so"
+    CORETARGET: "."
+
+# Inclusion templates, required for the build to work
+include:
+  - template: Jobs/Code-Quality.gitlab-ci.yml
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/windows-x64-mingw.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/windows-i686-mingw.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-x64.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/osx-cmake-x86.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/osx-cmake-arm64.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/android-cmake.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/ios-cmake.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/tvos-cmake.yml'
+
+# Stages for building
+stages:
+  - build-prepare
+  - build-deps-easyrpg
+  - build-shared
+  - build-static
+  - test
+
+# Removes some inherited options that can conflict in some jobs
+# Used by dependency builder and tests
+.easyrpg:cleanup:
+  before_script:
+    - '' # Overwrite a potential before script
+  after_script:
+    - '' # Overwrite a potential after script
+  needs: # No needs
+  dependencies: # No dependencies
+  artifacts: # No artifacts
+
+# Builds the dependencies required for each target system
+.build-deps-easyrpg:
+  extends:
+    - .easyrpg:cleanup
+    - .core-defs
+  stage: build-deps-easyrpg
+  variables:
+    DEPS: builds/libretro/buildscripts/$PLATFORM_TARGET
+  cache:
+    key: "easyrpg-deps-$PLATFORM_TARGET"
+    paths:
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/bin
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/include
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/lib
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/lib64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/vitasdk
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/.deps-built.${DEPS_VERSION}
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/armeabi-v7a-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/arm64-v8a-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86_64-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86_64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/armv7
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/arm64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/universal
+  artifacts:
+    paths:
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/bin
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/include
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/lib
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/lib64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/vitasdk
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/.deps-built.${DEPS_VERSION}
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/armeabi-v7a-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/arm64-v8a-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86_64-toolchain
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/x86_64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/armv7
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/arm64
+      - builds/libretro/buildscripts/$PLATFORM_TARGET/universal
+    expire_in: 1 hour
+  script:
+    - if [ ! -d ${DEPS}/.deps-built.${DEPS_VERSION} ]; then
+    - builds/libretro/patches.sh
+    - pushd ${DEPS}
+    - rm -rf include lib lib64 *-toolchain arm64 universal
+    - ./0_build_everything.sh
+    - mkdir .deps-built.${DEPS_VERSION}
+    - touch .deps-built.${DEPS_VERSION}/built
+    - popd
+    - fi
+
+.common:
+  cmake:
+    - pip3 config set global.break-system-packages true
+    - pip3 install --upgrade cmake
+    - pip3 install --upgrade ninja
+  build:
+    - export EASYRPG_BUILDSCRIPTS=${PWD}/builds/libretro/buildscripts
+    - cmake --preset ${CMAKE_PRESET} ${CMAKE_COMMON} ${CMAKE_ARGS}
+    - cmake --build --preset ${CMAKE_PRESET}
+    - cp build/${CMAKE_PRESET}/${CORENAME}_libretro${CORESUFFIX} ${CORETARGET}
+  check:
+    - export EASYRPG_BUILDSCRIPTS=${PWD}/builds/libretro/buildscripts
+    - cmake --preset ${CMAKE_PRESET} ${CMAKE_COMMON} ${CMAKE_ARGS}
+    - cmake --build --preset ${CMAKE_PRESET} --target check
+
+# Windows build
+# Fetched from easyrpg-jenkins server because Gitlab CI runner has problems
+# with long paths on Windows m(
+# Grabbing the prebuilt dependencies and building the Windows version locally
+# is also not an option because this requires VS2022
+libretro-build-windows-x64:
+  variables:
+    STRIP_CORE_LIB: 0
+  extends:
+    - .core-defs
+    - .libretro-windows-x64-mingw-make-default
+  script:
+    - wget https://easyrpg.org/downloads/player/latest/easyrpg-player-latest-windows-libretro-x64.zip
+    - unzip easyrpg-player-latest-windows-libretro-x64.zip
+
+libretro-build-windows-i686:
+  variables:
+    STRIP_CORE_LIB: 0
+  extends:
+    - .core-defs
+    - .libretro-windows-i686-mingw-make-default
+  script:
+    - wget https://easyrpg.org/downloads/player/latest/easyrpg-player-latest-windows-libretro.zip
+    - unzip easyrpg-player-latest-windows-libretro.zip
+
+# Linux build
+deps:linux-x64:
+  extends:
+    - .libretro-linux-x64
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: linux-static
+
+libretro-build-linux-x64:
+  extends:
+    - .core-defs
+    - .libretro-linux-x64-make-default
+  dependencies:
+    - deps:linux-x64
+  needs:
+    - deps:linux-x64
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-linux-x64"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: linux-libretro-release
+  script:
+    - !reference [.common, cmake]
+    - !reference [.common, build]
+
+test:linux-x64:
+  extends:
+    - libretro-build-linux-x64
+    - .easyrpg:cleanup
+  stage: test
+  dependencies:
+    - deps:linux-x64
+  needs:
+    - deps:linux-x64
+    - libretro-build-linux-x64
+  variables:
+    CMAKE_PRESET: linux-libretro-release
+  script:
+    - !reference [.common, cmake]
+    - !reference [.common, check]
+
+# macOS build
+deps:osx:
+  tags:
+    - mac-apple-silicon
+  extends:
+    - .libretro-osx-cmake-x86_64
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: macos
+
+libretro-build-osx-x64:
+  tags:
+    - mac-apple-silicon
+  extends:
+    - .core-defs
+    - .libretro-osx-cmake-x86_64
+  dependencies:
+    - deps:osx
+  needs:
+    - deps:osx
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-osx-x86_64"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: macos-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=x86_64
+        --fresh"
+    CORESUFFIX: .dylib
+  script:
+    - !reference [.common, build]
+
+libretro-build-osx-arm64:
+  tags:
+    - mac-apple-silicon
+  extends:
+    - .core-defs
+    - .libretro-osx-cmake-arm64
+  dependencies:
+    - deps:osx
+  needs:
+    - deps:osx
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-osx-arm64"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: macos-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=arm64
+        --fresh"
+    CORESUFFIX: .dylib
+  script:
+    - !reference [.common, build]
+
+test:osx-x64:
+  tags:
+    - mac-apple-silicon
+  extends:
+    - libretro-build-osx-x64
+    - .easyrpg:cleanup
+  stage: test
+  dependencies:
+    - deps:osx
+  needs:
+    - deps:osx
+    - libretro-build-osx-x64
+  variables:
+    CMAKE_PRESET: macos-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=x86_64
+        --fresh"
+  script:
+    - !reference [.common, check]
+
+test:osx-arm64:
+  tags:
+    - mac-apple-silicon
+  extends:
+    - libretro-build-osx-arm64
+    - .easyrpg:cleanup
+  stage: test
+  dependencies:
+    - deps:osx
+  needs:
+    - deps:osx
+    - libretro-build-osx-arm64
+  variables:
+    CMAKE_PRESET: macos-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=arm64
+        --fresh"
+  script:
+    - !reference [.common, check]
+
+# Android build
+deps:android:
+  extends:
+    - .libretro-android-cmake
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: android
+  before_script:
+    - !reference [.common, cmake]
+
+.libretro-android-cmake-easyrpg:
+  extends:
+    - .core-defs
+    - .libretro-android-cmake
+  dependencies:
+    - deps:android
+  needs:
+    - deps:android
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-android-$ANDROID_ABI"
+    paths:
+      - build/
+  variables:
+    CORETARGET: easyrpg_libretro_android.so
+  script:
+    - export ANDROID_NDK=$NDK_ROOT
+    - !reference [.common, cmake]
+    - !reference [.common, build]
+
+android-armeabi-v7a:
+  extends: .libretro-android-cmake-easyrpg
+  variables:
+    ANDROID_ABI: armeabi-v7a
+    CMAKE_PRESET: android-armeabi-v7a-libretro-release
+
+android-arm64-v8a:
+  extends: .libretro-android-cmake-easyrpg
+  variables:
+    ANDROID_ABI: arm64-v8a
+    CMAKE_PRESET: android-arm64-v8a-libretro-release
+
+android-x86:
+  extends: .libretro-android-cmake-easyrpg
+  variables:
+    ANDROID_ABI: x86
+    CMAKE_PRESET: android-x86-libretro-release
+
+android-x86_64:
+  extends: .libretro-android-cmake-easyrpg
+  variables:
+    ANDROID_ABI: x86_64
+    CMAKE_PRESET: android-x86_64-libretro-release
+
+# iOS build
+deps:ios:
+  extends:
+    - .libretro-ios-cmake-ios9
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: ios
+
+libretro-build-ios9:
+  extends:
+    - .core-defs
+    - .libretro-ios-cmake-ios9
+  dependencies:
+    - deps:ios
+  needs:
+    - deps:ios
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-ios9"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: ios-armv7-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=armv7
+        --fresh"
+    CORESUFFIX: .dylib
+  script:
+    - !reference [.common, build]
+
+libretro-build-ios-arm64:
+  extends:
+    - .core-defs
+    - .libretro-ios-cmake-arm64
+  dependencies:
+    - deps:ios
+  needs:
+    - deps:ios
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-ios-arm64"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: ios-arm64-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=arm64
+        --fresh"
+    CORESUFFIX: .dylib
+  script:
+    - !reference [.common, build]
+
+# tvOS build
+deps:tvos:
+  extends:
+    - .libretro-tvos-cmake
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: tvos
+
+libretro-build-tvos-arm64:
+  extends:
+    - .core-defs
+    - .libretro-tvos-cmake
+  dependencies:
+    - deps:tvos
+  needs:
+    - deps:tvos
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-tvos"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: tvos-libretro-release
+    CMAKE_ARGS: "
+        -DCMAKE_OSX_ARCHITECTURES=arm64
+        --fresh"
+    CORESUFFIX: .dylib
+  script:
+    - !reference [.common, build]
