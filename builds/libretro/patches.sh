@@ -16,6 +16,9 @@ perl -pi -e 's/export ANDROID_NDK=.*/export ANDROID_NDK=\$NDK_ROOT/' $BUILDSCRIP
 # Do not build the Player APK
 perl -pi -e 's/.\/4/#.\/4/' $BUILDSCRIPTS/android/0_build_everything.sh
 
+# Force CMake 3.5 for libpng
+perl -pi -e 's/CMAKE_EXTRA_ARGS="/CMAKE_EXTRA_ARGS="-DCMAKE_POLICY_VERSION_MINIMUM=3.5 /' $BUILDSCRIPTS/android/2_build_toolchain.sh
+
 ## Vita
 
 # Do not download the VitaSDK
