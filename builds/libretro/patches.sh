@@ -35,3 +35,7 @@ else
 	# iOS: Do not build (useless) SDL2
 	perl -pi -e 's/(install_lib.* \$SDL2)/#\1/' $BUILDSCRIPTS/ios/2_build_toolchain.sh
 fi
+
+## macOS / iOS: Downgrade ICU to 76
+echo 'ICU_URL="https://github.com/unicode-org/icu/releases/download/release-76-1/icu4c-76_1-src.tgz"' > $BUILDSCRIPTS/macos/packages.sh
+echo 'ICU_URL="https://github.com/unicode-org/icu/releases/download/release-76-1/icu4c-76_1-src.tgz"' > $BUILDSCRIPTS/ios/packages.sh
