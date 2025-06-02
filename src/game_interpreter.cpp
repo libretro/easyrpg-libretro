@@ -2073,10 +2073,10 @@ std::optional<bool> Game_Interpreter::HandleDestinyScript(const lcf::rpg::EventC
 
 bool Game_Interpreter::CommandComment(const lcf::rpg::EventCommand &com) {
 	if (auto handled = HandleDynRpgScript(com); handled.has_value()) {
-		return handled.value();
+		return *handled;
 	}
 	if (auto handled = HandleDestinyScript(com); handled.has_value()) {
-		return handled.value();
+		return *handled;
 	}
 
 	return true;
