@@ -71,7 +71,9 @@ stages:
   variables:
     DEPS: builds/libretro/buildscripts/$PLATFORM_TARGET
   cache:
-    key: "easyrpg-deps-$PLATFORM_TARGET"
+    # PLATFORM_TARGET alone is not unique: linux-static is used by both the x64
+    # and the aarch64 deps job, which would share one cache entry
+    key: "easyrpg-deps-$CI_JOB_NAME"
     paths:
       - builds/libretro/buildscripts/$PLATFORM_TARGET/bin
       - builds/libretro/buildscripts/$PLATFORM_TARGET/include
@@ -203,10 +205,6 @@ deps:linux-aarch64:
     - .build-deps-easyrpg
   variables:
     PLATFORM_TARGET: linux-static
-  # linux-static is also used by the x64 deps job, so the inherited cache key
-  # would be shared between two architectures
-  cache:
-    key: "easyrpg-deps-$PLATFORM_TARGET-aarch64"
 
 libretro-build-linux-aarch64:
   extends:
