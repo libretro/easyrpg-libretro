@@ -31,6 +31,8 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-x64.yml'
   - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-aarch64.yml'
+  - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-cmake-x86.yml'
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-cmake-arm64.yml'
@@ -194,6 +196,35 @@ test:linux-x64:
   script:
     - !reference [.common, cmake]
     - !reference [.common, check]
+
+deps:linux-aarch64:
+  extends:
+    - .libretro-linux-aarch64
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: linux-static
+  # linux-static is also used by the x64 deps job, so the inherited cache key
+  # would be shared between two architectures
+  cache:
+    key: "easyrpg-deps-$PLATFORM_TARGET-aarch64"
+
+libretro-build-linux-aarch64:
+  extends:
+    - .core-defs
+    - .libretro-linux-aarch64-make-default
+  dependencies:
+    - deps:linux-aarch64
+  needs:
+    - deps:linux-aarch64
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-linux-aarch64"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: linux-libretro-release
+  script:
+    - !reference [.common, cmake]
+    - !reference [.common, build]
 
 # macOS build
 deps:osx:
