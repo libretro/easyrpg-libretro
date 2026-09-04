@@ -16,6 +16,16 @@ perl -pi -e 's/export ANDROID_NDK=.*/export ANDROID_NDK=\$NDK_ROOT/' $BUILDSCRIP
 # Do not build the Player APK
 perl -pi -e 's/.\/4/#.\/4/' $BUILDSCRIPTS/android/0_build_everything.sh
 
+# The NDK only supports API level 21 and up; the pinned buildscripts still ask
+# for 16 on armeabi-v7a, which stops the toolchain build at the first CMake
+# project ("The API level 16 is not supported by the NDK").
+perl -pi -e 's/export TARGET_API=16/export TARGET_API=21/' $BUILDSCRIPTS/android/2_build_toolchain.sh
+
+# NDK 21 shipped a GNU assembler for the -no-integrated-as builds to call; the
+# current one does not, so clang falls back to the host /usr/bin/as, which
+# cannot assemble ARM ("unrecognized option '-EL'").
+perl -pi -e 's/-no-integrated-as //' $BUILDSCRIPTS/android/2_build_toolchain.sh
+
 ## Vita
 
 # Do not download the VitaSDK

@@ -31,6 +31,8 @@ include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-x64.yml'
   - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-i686.yml'
+  - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-aarch64.yml'
   - project: 'libretro-infrastructure/ci-templates'
     file: '/osx-cmake-x86.yml'
@@ -198,6 +200,31 @@ test:linux-x64:
   script:
     - !reference [.common, cmake]
     - !reference [.common, check]
+
+deps:linux-i686:
+  extends:
+    - .libretro-linux-i686
+    - .build-deps-easyrpg
+  variables:
+    PLATFORM_TARGET: linux-static
+
+libretro-build-linux-i686:
+  extends:
+    - .core-defs
+    - .libretro-linux-i686-make-default
+  dependencies:
+    - deps:linux-i686
+  needs:
+    - deps:linux-i686
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-linux-i686"
+    paths:
+      - build/
+  variables:
+    CMAKE_PRESET: linux-libretro-release
+  script:
+    - !reference [.common, cmake]
+    - !reference [.common, build]
 
 deps:linux-aarch64:
   extends:
